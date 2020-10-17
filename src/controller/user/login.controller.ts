@@ -1,25 +1,25 @@
-import { Controller, Get, HttpService, Injectable } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
+import { LoginService } from 'src/service/user/login.service';
 
-type TLoginRes = {
-  code: number;
-  status: boolean;
-  ts: number;
-  data: {
-    url: string;
-    ouathKey: string;
-  };
-};
-
-@Injectable()
 @Controller('login')
 export class LoginController {
-  constructor(readonly httpService: HttpService) {}
+  constructor(private readonly loginService: LoginService) {}
 
-  @Get('url')
-  async getLoginUrl() {
-    const { data } = await this.httpService
-      .get<any>('https://passport.bilibili.com/qrcode/getLoginUrl')
-      .toPromise();
-    return data;
+  @Get()
+  getLoginUrl() {
+    return this.loginService.getLoginUrl();
+  }
+
+  @Get('qrcode')
+  async getLoginQRCode(@Res() response: Response, @Query('oauthKey') oauthKey: string) {
+    response.setHeader('Content-Type', 'image/webp');
+    response.send(await this.loginService.getLoginQRCode(oauthKey))
+  }
+
+
+  @Get('login_status')
+  async getUserLoginStatus(@Query('oauthKey') oauthKey: string) {
+    return this.loginService.getUserLoginStatus(oauthKey);
   }
 }
