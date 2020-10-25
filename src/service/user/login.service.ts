@@ -20,12 +20,12 @@ type IBilibili<T> = {
 export class LoginService {
   constructor(private readonly httpService: HttpService) {}
 
-  getLoginUrl(): Observable<ILogin> {
+  getLoginUrl(): Observable<IBilibili<ILogin>> {
     return this.httpService
       .get<IBilibili<ILogin>>(
         'https://passport.bilibili.com/qrcode/getLoginUrl',
       )
-      .pipe(map((_) => _.data.data));
+      .pipe(map((_) => _.data));
   }
 
   getLoginQRCode(ouathKey: string): Promise<Buffer> {
@@ -40,9 +40,9 @@ export class LoginService {
    */
   async getUserLoginStatus(oauthKey: string) {
     return this.httpService
-      .get<IBilibili<any>>(
+      .post<IBilibili<any>>(
         `https://passport.bilibili.com/qrcode/getLoginInfo?oauthKey=${oauthKey}`,
       )
-      .pipe(map((_) => _.data.data));
+      .pipe(map((_) => _.data));
   }
 }
